@@ -1,0 +1,77 @@
+board:
+
+- section above the checker board that shows who's turn it is
+
+
+
+multiplayer:
+
+- if p1 connects, bring them to a screen that says "waiting for player 2"
+- starts a game that swaps the boards on each individual player's window so their side is on the bottom
+- send the piece, pieces taken (if applicable), and pos every move (send two different pos if double take)
+- give up button so whoever presses it insta loses and ability to start new game is allowed
+
+
+computer:
+- button to go back to main menu
+- button to start new game at any time
+- min max algorithm
+  - checks all possible moves and appends them to a dictionary (moves : points) where points are determined by what that move would result in (killing = +1, moving in front of enemy without any backing = -1, etc.)
+  - picks the move(s) that would result in largest benefit (randomize if all equal)
+
+
+
+game:
+
+- starts with a menu with option to play against comp or player (player = True/False)
+- recursive call that checks the 2 (4 if kinged) moves (if takes a piece, recursive call to see if can double/triple/etc kill)
+- if reach the other end of the board, give the piece a king status (king = True through class method), which allows it to go backwards
+- draw if no possible moves left
+- after draw/win/loss, provide a new game menu and quit button (if 2p, quit should only quit on window of the person who clicked it)
+- clicking your piece shows the possible moves (max 4) with smaller dark grey circles
+- end turn button if player doesn't want to double kill for some reason (prints error underneath button if player hasn't made a move that turn)
+
+
+
+
+functions:
+- function that checks front two (and back two if kinged) spots to see if there are any pieces in front (if so, return pieces)
+- function that checks whether a piece can jump another
+- function that returns area of piece so its easier to identify which piece is clicked
+- prints the error "You haven't moved this turn" under the end turn button if player hasn't moved yet (time it for like 5 seconds and remove it afterwards)
+- checks if any pieces in the possible moves (should be called when deciding possible moves)
+
+
+
+variables:
+
+
+
+classes:
+
+- a class that represents pieces
+  - method for moving a piece (takes new spot and piece taken (if applicable) as parameters)
+  - method to remove a piece of a board (ideally called when moving another piece using other.remove() or something)
+  - method that creates the two (4 if kinged) that show player where they can move
+
+
+
+debug:
+
+- function that makes piece a different color when clicking it
+
+
+
+FINISHED:
+
+- function that returns position of a piece 
+- a class that represents pieces
+  - method to king a piece (self.king = True/False)
+  - method that draws the piece
+- number of pieces player still has left
+- who's turn it is (comp/player or player1/player2)
+- a list of all possible spots on board with pieces labeled as 1, which makes it easier to know which spots are free/occupied
+- two lists that hold each players remaining pieces
+- function that just updates the board
+- 8x8 board
+- gap on east, west, and south side to separate edge of checker board with border of the window
