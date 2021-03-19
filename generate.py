@@ -5,7 +5,7 @@ pygame.init()
 
 
 class Generator():
-    
+
     @staticmethod
     def generateLines():
         for line in range(9):
@@ -29,7 +29,7 @@ class Generator():
         Generator.generateLines()
         Generator.generateBlock()
 
-    
+
     @staticmethod
     def generateGrid():
         grid = []
@@ -44,14 +44,30 @@ class Generator():
         return grid
 
 
-def generateBoard(p1, p2, clickedPiece, grid):
+    @staticmethod
+    def updateGrid(player2, player1, removed):
+        grid = [[0 for _ in range(8)] for _ in range(8)]
+        for piece in player2.pieces + player1.pieces:
+            if not piece.taken and piece not in removed:
+                grid[piece.row][piece.column] = 1
+        return grid
+
+
+def generateBoard(p1, p2, clickedPiece, grid, multiJump):
     WINDOW.fill(COLORS["WHITE"])
 
+    
 
     Generator.generateBoard()
 
-    for piece in p1.pieces + p2.pieces:
-        piece.draw()
+    for piece in p2.pieces + p1.pieces:
+        if not piece.taken:
+            piece.draw()
+
 
     if clickedPiece:
-        clickedPiece.drawPossibleMoves(grid)
+        clickedPiece.drawPossibleMoves(grid, p2.pieces + p1.pieces, multiJump)
+
+
+
+

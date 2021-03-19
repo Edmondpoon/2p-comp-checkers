@@ -29,6 +29,7 @@ grid = Generator.generateGrid()
 p1Pieces = generatePieces("player1", grid)
 p2Pieces = generatePieces("player2", grid)
 players = [Player(p1Pieces, grid), Player(p2Pieces, grid)]
+removed = ["temp"]
 
 def threaded_client(conn, player):
     conn.send(pickle.dumps(players[player]))
@@ -36,20 +37,37 @@ def threaded_client(conn, player):
 
     while True:
         try:
+
             data = pickle.loads(conn.recv(2048))
-            players[player] = data
+#            print("Recieved:", data)            
+
+
+            if isinstance(data, Player):
+                players[player] = data
+            else:
+                for piece in data:
+                    if piece != "temp":
+                        for p in players[0].pieces + players[1].pieces:
+                            if p.rowColumn == piece.rowColumn and p not in removed:
+                                print(removed)
+                                removed.append(p)
+                                break
+
 
             if not data:
                 print("A player has disconnected")
                 break
 
-            else:
+            elif isinstance(data, Player):
                 if player == 1:
                     reply = players[0]
-
                 else:
                     reply = players[1]
 
+            elif not isinstance(data, Player):
+                reply = removed
+
+#            print("Sending:", reply)            
 
 
             conn.sendall(pickle.dumps(reply))
