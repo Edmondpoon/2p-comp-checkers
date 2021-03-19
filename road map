@@ -10,6 +10,7 @@ multiplayer:
 - starts a game that swaps the boards on each individual player's window so their side is on the bottom
 - send the piece, pieces taken (if applicable), and pos every move (send two different pos if double take)
 - give up button so whoever presses it insta loses and ability to start new game is allowed
+- draw the board based on each players POV
 
 
 computer:
@@ -64,7 +65,7 @@ debug:
 
 FINISHED:
 
-- function that returns position of a piece 
+- function that returns position of a piece
 - a class that represents pieces
   - method to king a piece (self.king = True/False)
   - method that draws the piece

@@ -26,20 +26,29 @@ class moveChecker():
 
         return possibleMoves
 
+    @staticmethod
+    def checkPiece(row, column, color, pieces):
+        for piece in pieces:
+            if piece.rowColumn == (row, column) and piece.color != color:
+                return True
+
+        return False
+
 
     @staticmethod
-    def removable(piece, grid):
+    def removable(piece, grid, pieces):
         Kdirection = piece.kingDirection
+        playerPiece = piece.color
         leftRight = {"left" : 1, "right" : -1}
-        possibleTakes = []
+        possibleTakes = {}
         row, column = piece.row, piece.column
         for direction in leftRight.keys():
             if piece.kinged:
-                if moveChecker.inBounds(row + (Kdirection * -2), column + (2 * leftRight[direction]))  and grid[row + Kdirection][column + leftRight[direction]] == 1 and grid[row + (2 * Kdirection)][column + (2 * leftRight[direction])] == 0:
-                    possibleTakes.append((row + (2 * Kdirection), column + (2 * leftRight[direction])))
+                if moveChecker.inBounds(row + (Kdirection * 2), column + (2 * leftRight[direction])) and moveChecker.checkPiece(row + Kdirection, column + leftRight[direction], playerPiece, pieces) and grid[row + Kdirection][column + leftRight[direction]] == 1 and grid[row + (2 * Kdirection)][column + (2 * leftRight[direction])] == 0:
+                    possibleTakes[(row + (2 * Kdirection), column + (2 * leftRight[direction]))] =  (row + Kdirection, column + leftRight[direction])
 
-            if moveChecker.inBounds(row + (Kdirection * -2), column + (2 * leftRight[direction]))  and grid[row + (Kdirection * -1)][column + leftRight[direction]] == 1 and grid[row + (-2 * Kdirection)][column + (2 * leftRight[direction])] == 0:
-                possibleTakes.append((row + (-2 * Kdirection), column + (2 * leftRight[direction])))
+            if moveChecker.inBounds(row + (Kdirection * -2), column + (2 * leftRight[direction])) and moveChecker.checkPiece(row + (Kdirection * -1), column + leftRight[direction], playerPiece, pieces) and grid[row + (Kdirection * -1)][column + leftRight[direction]] == 1 and grid[row + (-2 * Kdirection)][column + (2 * leftRight[direction])] == 0:
+                possibleTakes[(row + (-2 * Kdirection), column + (2 * leftRight[direction]))] = (row + (Kdirection * -1), column + leftRight[direction])
 
         return possibleTakes
 
@@ -86,6 +95,10 @@ class piece():
     def pos(self):
         return self.center
 
+    @property
+    def rowColumn(self):
+        return (self.row, self.column)
+
     def draw(self):
         center = self.center
         if not self.taken and self.kinged:
@@ -103,27 +116,27 @@ class piece():
         self.taken = True
         grid[self.row][self.column] = 0
 
-    def move(self, pos, p1, p2):
-        p1.grid[self.row][self.column] = 0
-        p2.grid[self.row][self.column] = 0
+    def move(self, pos, grid):
+        grid[self.row][self.column] = 0
         row, column = pos
-        p1.grid[row][column] = 1
-        p2.grid[row][column] = 1
+        grid[row][column] = 1
         self.row = row
         self.column = column
         if row == self.kingRow:
             self.king()
 
-    def drawPossibleMoves(self, grid):
-        possibleMoves = moveChecker.checkMoves(self, grid)
-        possibleTakes = moveChecker.removable(self, grid)
-        Moves = possibleMoves + possibleTakes
-        for move in Moves:
-            row, column = move
-            center = ((column * 80) + 50, (row * 80) + 130)
-            pygame.draw.circle(WINDOW, COLORS["GREY"], center, MOVE_SIZE / 2)
-        self.pMoves = possibleMoves
-        self.pTakes = possibleTakes
+    def drawPossibleMoves(self, grid, pieces, multiJump):
+        if not self.taken:
+            possibleMoves = moveChecker.checkMoves(self, grid)
+            possibleTakes = moveChecker.removable(self, grid, pieces)
+            Moves = possibleMoves + list(possibleTakes.keys()) if not multiJump else list(possibleTakes.keys())
+
+            for move in Moves:
+                row, column = move
+                center = ((column * 80) + 50, (row * 80) + 130)
+                pygame.draw.circle(WINDOW, COLORS["GREY"], center, MOVE_SIZE / 2)
+            self.pMoves = possibleMoves
+            self.pTakes = possibleTakes
 
     def returnPossibleMoves(self):
         return self.pMoves

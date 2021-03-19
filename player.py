@@ -7,7 +7,6 @@ class Player():
     def __init__(self, pieces, grid):
         self.pieces = pieces
         self.pieces_left = 12
-        self.grid = grid
         self.player = self.pieces[0].color
 
 
@@ -15,10 +14,10 @@ class Player():
     def positions(self):
         return self.pieces
 
-
-    def pieceRemove(self, piece, grid):
+    def remove(self, piece, grid):
+        piece.removePiece(grid)
         self.pieces_left -= 1
-        piece.pieceRemove(grid)
+
 
     @property
     def remainingPieces(self):

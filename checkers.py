@@ -1,5 +1,4 @@
 import pygame
-import network
 import player
 import pieces
 from constants import WINDOW
@@ -8,10 +7,13 @@ import generate as gb
 
 pygame.init()
 
-clientNumber = 0
 
 def update():
     pygame.display.update()
+
+
+def nextTurn(turn):
+    return (turn + 1, None, False) 
 
 
 def checkerGame():
@@ -19,30 +21,22 @@ def checkerGame():
     DEBUG_MODE = True
     SECOND_PLAYER = "player"
     clickedPiece = None
+    multiJump = False
     #FIXME: decide who second player is here
 
     #
     grid = gb.Generator.generateGrid()
-    turn = 1
-    p1_left = 12
-    p2_left = 12
+    turn = 0
 
     #player
-    if SECOND_PLAYER == "player":
-        n = network.Network()
-        p1 = n.getPlayer()
-
-    else:
-        p1_pieces = pieces.generatePieces("player1", grid)
-        p2_pieces = pieces.generatePieces("player2", grid)
-        p1 = player.Player(p1_pieces, grid)
-        p2 = player.Player(p2_pieces, grid)
+    p1_pieces = pieces.generatePieces("player1", grid)
+    p2_pieces = pieces.generatePieces("player2", grid)
+    p1 = player.Player(p1_pieces, grid)
+    p2 = player.Player(p2_pieces, grid)
+    turns = {0 : p1, 1 : p2}
 
     while RUN:
-        if SECOND_PLAYER == "player":
-            p2 = n.send(p1)
-            #p1.grid = p2.grid
-
+        currentPlayer, nextPlayer = turns[turn % 2], turns[(turn + 1) % 2]
 
         keys = pygame.key.get_pressed()
         for event in pygame.event.get():
@@ -50,35 +44,43 @@ def checkerGame():
                 RUN = False
 
         if keys[pygame.K_LEFT]:
-            print(p1.grid, 'palyer1')
-            print(p2.grid, 'player2')
-
+            print(grid)
+            
         if DEBUG_MODE and pygame.mouse.get_pressed()[0]:
             x, y = pygame.mouse.get_pos()
-            #print("Current mouse position:", x,y)
 
-        #how to remove piece from both things
-        #p1.pieceRemove(piece, grid)
         if pygame.mouse.get_pressed()[0]:
-            #find the piece associated with the click and assign to clickedPiece
             x, y = pygame.mouse.get_pos()
             row = (y // 80) - 1
             column = (x // 80)
-#            if row < 0 or column < 0:
- #               pass
-  #          elif grids[p1.player][row][column] == 1:
-   #             for piece in p1.remainingPieces + p2.remainingPieces:
-    #                if piece.row == row and piece.column == column:
-     #                   clickedPiece = piece
-      #      elif grids[p1.player][row][column] == 0 and clickedPiece:
-       #         if (row, column) in clickedPiece.returnPossibleMoves():
-        #            clickedPiece.move((row, column), p1, p2)
-                #elif (row, column) in clickedPiece.returnPossibleTakes():
+            if row < 0 or column < 0 or column > 7 or row > 7:
+                pass
 
-                    
+            elif grid[row][column] == 1 and not multiJump:
+                for piece in currentPlayer.remainingPieces:
+                    if piece.row == row and piece.column == column:
+                        clickedPiece = piece
+
+            elif grid[row][column] == 0 and clickedPiece and clickedPiece.color == currentPlayer.player:
+                if (row, column) in clickedPiece.returnPossibleMoves() and not multiJump:
+                    clickedPiece.move((row, column), grid)
+                    turn, clickedPiece, multiJump = nextTurn(turn)
+
+                elif (row, column) in clickedPiece.returnPossibleTakes():
+                    for piece in nextPlayer.pieces:
+                        if piece.rowColumn == clickedPiece.returnPossibleTakes()[(row, column)]:
+                            clickedPiece.move((row, column), grid)
+                            nextPlayer.remove(piece, grid)
+                            if len(pieces.moveChecker.removable(clickedPiece, grid, currentPlayer.pieces + nextPlayer.pieces)) == 0:
+                                turn, clickedPiece, multiJump = nextTurn(turn)
+
+                            else:
+                                multiJump = True
+
+                            break
 
 
-        gb.generateBoard(p1, p2, clickedPiece, grid)
+        gb.generateBoard(p1, p2, clickedPiece, grid, multiJump)
 
 
 

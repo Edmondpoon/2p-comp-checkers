@@ -10,7 +10,7 @@ class Network():
         self.addr = (self.server, self.port)
         self.player = self.connect()
 
-    
+
     def getPlayer(self):
         return self.player
 
@@ -23,12 +23,22 @@ class Network():
         except:
             pass
 
-    
+
     def send(self, data):
         try:
             self.client.send(pickle.dumps(data))
             return pickle.loads(self.client.recv(2048))
-        
+
+        except socket.error as e:
+            print(e)
+
+
+
+    def gridSend(self, data):
+        try:
+            self.client.send(pickle.dumps(data))
+            return pickle.loads(self.client.recv(2048))
+
         except socket.error as e:
             print(e)
 
