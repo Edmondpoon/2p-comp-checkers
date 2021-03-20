@@ -18,10 +18,14 @@ class moveChecker():
         row, column = piece.row, piece.column
         for direction in leftRight.keys():
             if piece.kinged:
-                if moveChecker.inBounds(row + Kdirection, column + leftRight[direction]) and grid[row + Kdirection][column + leftRight[direction]] == 0:
+                if (moveChecker.inBounds(row + Kdirection, column + leftRight[direction])
+                    and grid[row + Kdirection][column + leftRight[direction]] == 0):
+
                     possibleMoves.append((row + Kdirection, column + leftRight[direction]))
 
-            if moveChecker.inBounds(row + (-1 * Kdirection), column + leftRight[direction]) and grid[row + (Kdirection * -1)][column + leftRight[direction]] == 0:
+            if (moveChecker.inBounds(row + (-1 * Kdirection), column + leftRight[direction]) 
+                    and grid[row + (Kdirection * -1)][column + leftRight[direction]] == 0):
+
                 possibleMoves.append((row + (Kdirection * -1), column + leftRight[direction]))
 
         return possibleMoves
@@ -44,10 +48,18 @@ class moveChecker():
         row, column = piece.row, piece.column
         for direction in leftRight.keys():
             if piece.kinged:
-                if moveChecker.inBounds(row + (Kdirection * 2), column + (2 * leftRight[direction])) and moveChecker.checkPiece(row + Kdirection, column + leftRight[direction], playerPiece, pieces) and grid[row + Kdirection][column + leftRight[direction]] == 1 and grid[row + (2 * Kdirection)][column + (2 * leftRight[direction])] == 0:
+                if (moveChecker.inBounds(row + (Kdirection * 2), column + (2 * leftRight[direction])) 
+                        and moveChecker.checkPiece(row + Kdirection, column + leftRight[direction], playerPiece, pieces) 
+                        and grid[row + Kdirection][column + leftRight[direction]] == 1 
+                        and grid[row + (2 * Kdirection)][column + (2 * leftRight[direction])] == 0):
+
                     possibleTakes[(row + (2 * Kdirection), column + (2 * leftRight[direction]))] =  (row + Kdirection, column + leftRight[direction])
 
-            if moveChecker.inBounds(row + (Kdirection * -2), column + (2 * leftRight[direction])) and moveChecker.checkPiece(row + (Kdirection * -1), column + leftRight[direction], playerPiece, pieces) and grid[row + (Kdirection * -1)][column + leftRight[direction]] == 1 and grid[row + (-2 * Kdirection)][column + (2 * leftRight[direction])] == 0:
+            if (moveChecker.inBounds(row + (Kdirection * -2), column + (2 * leftRight[direction])) 
+                    and moveChecker.checkPiece(row + (Kdirection * -1), column + leftRight[direction], playerPiece, pieces) 
+                    and grid[row + (Kdirection * -1)][column + leftRight[direction]] == 1 
+                    and grid[row + (-2 * Kdirection)][column + (2 * leftRight[direction])] == 0):
+
                 possibleTakes[(row + (-2 * Kdirection), column + (2 * leftRight[direction]))] = (row + (Kdirection * -1), column + leftRight[direction])
 
         return possibleTakes
@@ -101,12 +113,12 @@ class piece():
 
     def draw(self):
         center = self.center
-        if not self.taken and self.kinged:
+        if self.kinged:
             pygame.draw.circle(WINDOW, self.color, center, self.radius)
             WINDOW.blit(CROWN, (center[0] - 22, center[1] - 15))
+            return
 
-        elif not self.taken:
-            pygame.draw.circle(WINDOW, self.color, center, self.radius)
+        pygame.draw.circle(WINDOW, self.color, center, self.radius)
 
 
     def king(self):
@@ -118,11 +130,10 @@ class piece():
 
     def move(self, pos, grid):
         grid[self.row][self.column] = 0
-        row, column = pos
-        grid[row][column] = 1
-        self.row = row
-        self.column = column
-        if row == self.kingRow:
+        grid[pos[0]][pos[1]] = 1
+        self.row, self.column = pos[0], pos[1]
+
+        if self.row == self.kingRow:
             self.king()
 
     def drawPossibleMoves(self, grid, pieces, multiJump):
@@ -143,6 +154,10 @@ class piece():
 
     def returnPossibleTakes(self):
         return self.pTakes
+
+    def equal(self, pos):
+        return self.rowColumn == pos
+
 
 class player1(piece):
     def __init__(self, row, column):

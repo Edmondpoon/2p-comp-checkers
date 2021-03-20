@@ -16,9 +16,12 @@ def nextTurn(turn):
     return (turn + 1, None, False) 
 
 
+
+
+
+
 def checkerGame():
     RUN = True
-    DEBUG_MODE = True
     SECOND_PLAYER = "player"
     clickedPiece = None
     multiJump = False
@@ -46,36 +49,34 @@ def checkerGame():
         if keys[pygame.K_LEFT]:
             print(grid)
             
-        if DEBUG_MODE and pygame.mouse.get_pressed()[0]:
-            x, y = pygame.mouse.get_pos()
 
         if pygame.mouse.get_pressed()[0]:
             x, y = pygame.mouse.get_pos()
-            row = (y // 80) - 1
-            column = (x // 80)
-            if row < 0 or column < 0 or column > 7 or row > 7:
+            row, column = (y // 80) - 1, (x // 80)
+
+            if not 0 <= row <= 7 or not 0 <= column <= 7:
                 pass
 
             elif grid[row][column] == 1 and not multiJump:
                 for piece in currentPlayer.remainingPieces:
-                    if piece.row == row and piece.column == column:
+                    if piece.equal((row, column)):
                         clickedPiece = piece
 
-            elif grid[row][column] == 0 and clickedPiece and clickedPiece.color == currentPlayer.player:
+            elif grid[row][column] == 0 and clickedPiece:
                 if (row, column) in clickedPiece.returnPossibleMoves() and not multiJump:
                     clickedPiece.move((row, column), grid)
                     turn, clickedPiece, multiJump = nextTurn(turn)
 
                 elif (row, column) in clickedPiece.returnPossibleTakes():
-                    for piece in nextPlayer.pieces:
-                        if piece.rowColumn == clickedPiece.returnPossibleTakes()[(row, column)]:
+                    for piece in nextPlayer.remainingPieces:
+                        if piece.equal(clickedPiece.returnPossibleTakes()[(row, column)]):
                             clickedPiece.move((row, column), grid)
                             nextPlayer.remove(piece, grid)
-                            if len(pieces.moveChecker.removable(clickedPiece, grid, currentPlayer.pieces + nextPlayer.pieces)) == 0:
-                                turn, clickedPiece, multiJump = nextTurn(turn)
+                            if pieces.moveChecker.removable(clickedPiece, grid, currentPlayer.pieces + nextPlayer.pieces):
+                                multiJump = True
 
                             else:
-                                multiJump = True
+                                turn, clickedPiece, multiJump = nextTurn(turn)
 
                             break
 
