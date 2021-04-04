@@ -11,8 +11,8 @@ class moveChecker():
         return 0 <= row < 8 and 0 <= column < 8
 
     @staticmethod
-    def checkMoves(piece, grid):
-        Kdirection = piece.kingDirection
+    def checkMoves(piece, grid, direction = None):
+        Kdirection = piece.kingDirection if not direction else direction
         leftRight = {"left" : 1, "right" : -1}
         possibleMoves = []
         row, column = piece.row, piece.column
@@ -97,6 +97,10 @@ class piece():
         self.row = row
         self.column = column
 
+        #moves
+        self.pTakes = {}
+        self.pMoves = []
+
     @property
     def center(self):
         deltaY = self.row * 80
@@ -148,12 +152,18 @@ class piece():
                 pygame.draw.circle(WINDOW, COLORS["GREY"], center, MOVE_SIZE / 2)
             self.pMoves = possibleMoves
             self.pTakes = possibleTakes
+            
 
     def returnPossibleMoves(self):
         return self.pMoves
 
     def returnPossibleTakes(self):
         return self.pTakes
+
+    def allMoves(self, grid, pieces):
+        possibleMoves = moveChecker.checkMoves(self, grid)
+        possibleTakes = moveChecker.removable(self, grid, pieces)
+        return possibleMoves + list(possibleTakes.keys())
 
     def equal(self, pos):
         return self.rowColumn == pos

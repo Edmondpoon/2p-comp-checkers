@@ -21,3 +21,10 @@ class Player():
     @property
     def remainingPieces(self):
         return [piece for piece in self.pieces if not piece.taken]
+
+
+    def checkDraw(self, grid):
+        for piece in self.pieces:
+            if not piece.taken and piece.allMoves(grid, self.pieces):
+                return False
+        return True
