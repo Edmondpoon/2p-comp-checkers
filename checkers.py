@@ -22,7 +22,6 @@ def reset():
     return 
 
 
-
 def checkerGame():
     RUN = True
     DEBUG = True
